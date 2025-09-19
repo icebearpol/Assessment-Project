@@ -15,7 +15,7 @@ import org.apache.poi.xssf.usermodel.*;
  * @author asus
  */
 public class TableFrame extends javax.swing.JFrame {
-    DefaultTableModel model;
+    private DefaultTableModel model;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TableFrame.class.getName());
 
     /**
@@ -23,6 +23,7 @@ public class TableFrame extends javax.swing.JFrame {
      */
     public TableFrame() {
         initComponents();
+
     }
 
     /**
@@ -237,6 +238,7 @@ public class TableFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+   
     private void clearFields() {
         idInput.setText("");
         nameInput.setText("");
@@ -252,12 +254,20 @@ public class TableFrame extends javax.swing.JFrame {
         
         if (id.isEmpty() || name.isEmpty() || age.isEmpty() || position.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Please fill all fields!");
-        } else {
-            model.addRow(new Object[]{id, name, age, position});
-            clearFields();
-        }
+        } 
+        int ageInt;
+        try {
+            ageInt = Integer.parseInt(age);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Age must be a number!");
     }//GEN-LAST:event_CreateButtonActionPerformed
-
+        DefaultTableModel model = (DefaultTableModel) myTable.getModel();
+        model.addRow(new Object[] {id, name, age, position});
+        
+        clearFields();
+        JOptionPane.showMessageDialog(this, "Employee added successfully!");
+        
+}
     private void positionInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_positionInputActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_positionInputActionPerformed
@@ -280,6 +290,9 @@ public class TableFrame extends javax.swing.JFrame {
         if (row == -1) {
             JOptionPane.showMessageDialog(this, "Select a row to delete!");
         }
+        
+        model.removeRow(row);
+        clearFields();
     }//GEN-LAST:event_DeleteButtonActionPerformed
 
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
@@ -304,11 +317,10 @@ public class TableFrame extends javax.swing.JFrame {
 
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             fileToSave = fileChooser.getSelectedFile();
-        
             if (!fileToSave.getName().endsWith(".xlsx")) {
                 fileToSave = new File(fileToSave.toString() + ".xlsx");
         }
-        }
+      }
             XSSFWorkbook workbook = new XSSFWorkbook();
             XSSFSheet sheet = workbook.createSheet("Employees");
             
