@@ -4,9 +4,13 @@
  */
 package g1assessment;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
@@ -23,6 +27,8 @@ public class TableFrame extends javax.swing.JFrame {
      */
     public TableFrame() {
         initComponents();
+        model = new DefaultTableModel(new String[]{"ID", "Name", "Age"}, 0);
+
 
     }
 
@@ -57,10 +63,7 @@ public class TableFrame extends javax.swing.JFrame {
 
         myTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
                 "ID", "Name", "Age", "Position"
@@ -139,6 +142,11 @@ public class TableFrame extends javax.swing.JFrame {
         });
 
         importButton.setText("Import");
+        importButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -329,6 +337,41 @@ public class TableFrame extends javax.swing.JFrame {
                 header.createCell(i).setCellValue(model.getColumnName(i));
     }//GEN-LAST:event_exportButtonActionPerformed
 }
+    private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importButtonActionPerformed
+        try {
+            // TODO add your handling code here:
+            JFileChooser choose = new JFileChooser();
+            choose.setDialogTitle("Select Excel File");
+            int result = choose.showOpenDialog(this);
+            if (result != JFileChooser.APPROVE_OPTION) {
+                JOptionPane.showMessageDialog(this, "No File Selected.");
+            }
+            
+            File selectedFile = choose.getSelectedFile();
+            FileInputStream file = new FileInputStream(selectedFile);
+            XSSFWorkbook workbook = new XSSFWorkbook(file);
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            
+            model.setRowCount(0);
+            
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+                String id = row.getCell(0).toString();
+                String name = row.getCell(1).toString();
+                String age = row.getCell(2).toString();
+                String position = row.getCell(3).toString();
+                model.addRow(new Object[]{id, name, age, position});
+            }
+            
+            workbook.close();
+            file.close();
+            JOptionPane.showMessageDialog(this, "Imported Successfully from: " + selectedFile.getName());
+        } catch (IOException ex) {
+            System.getLogger(TableFrame.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }//GEN-LAST:event_importButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -349,7 +392,11 @@ public class TableFrame extends javax.swing.JFrame {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (Exception ex) {
+            System.err.println("Failed to initialize LaF");
+        }
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new TableFrame().setVisible(true));
     }
