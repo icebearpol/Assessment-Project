@@ -9,7 +9,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import org.apache.poi.ss.usermodel.*;
@@ -21,14 +24,25 @@ import org.apache.poi.xssf.usermodel.*;
 public class TableFrame extends javax.swing.JFrame {
     private DefaultTableModel model;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TableFrame.class.getName());
-
+    private JTable table;
     /**
      * Creates new form TableFrame
      */
     public TableFrame() {
         initComponents();
-        model = new DefaultTableModel(new String[]{"ID", "Name", "Age"}, 0);
+        setTitle("Employee Table");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        
+        model = new DefaultTableModel(
+        new Object[]{"ID", "Name", "Age", "Position"}, 0
+        );
 
+        table = new JTable(model);
+        // Force row selection only
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setRowSelectionAllowed(true);
+        table.setColumnSelectionAllowed(false);
 
     }
 
@@ -72,9 +86,16 @@ public class TableFrame extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         jScrollPane1.setViewportView(myTable);
@@ -133,6 +154,11 @@ public class TableFrame extends javax.swing.JFrame {
         });
 
         ClearButton.setText("Clear");
+        ClearButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ClearButtonActionPerformed(evt);
+            }
+        });
 
         exportButton.setText("Export");
         exportButton.addActionListener(new java.awt.event.ActionListener() {
@@ -268,6 +294,8 @@ public class TableFrame extends javax.swing.JFrame {
             ageInt = Integer.parseInt(age);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Age must be a number!");
+            return;  // Add return here to stop adding invalid data
+
     }//GEN-LAST:event_CreateButtonActionPerformed
         DefaultTableModel model = (DefaultTableModel) myTable.getModel();
         model.addRow(new Object[] {id, name, age, position});
@@ -294,26 +322,28 @@ public class TableFrame extends javax.swing.JFrame {
 
     private void DeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteButtonActionPerformed
         // TODO add your handling code here:
-        int row = myTable.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Select a row to delete!");
-        }
-        
-        model.removeRow(row);
-        clearFields();
+    int selectedRow = myTable.getSelectedRow();
+    if (selectedRow >= 0) {
+        DefaultTableModel model = (DefaultTableModel) myTable.getModel();
+        model.removeRow(selectedRow);
+    } else {
+        JOptionPane.showMessageDialog(this, "Please select a row to delete!");
+    }
     }//GEN-LAST:event_DeleteButtonActionPerformed
 
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
         // TODO add your handling code here:
-        int row = myTable.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Select a row to update!");
-        }
-        model.setValueAt(idInput.getText(), row, 0);
-        model.setValueAt(nameInput.getText(), row, 1);
-        model.setValueAt(ageInput.getText(), row, 2);
-        model.setValueAt(positionInput.getText(), row, 3);
-        clearFields();
+    int row = myTable.getSelectedRow();
+    if (row == -1) {
+        JOptionPane.showMessageDialog(this, "Select a row to update!");
+        return;  // Stop execution here if no row selected
+    }
+    DefaultTableModel model = (DefaultTableModel) myTable.getModel();
+    model.setValueAt(idInput.getText(), row, 0);
+    model.setValueAt(nameInput.getText(), row, 1);
+    model.setValueAt(ageInput.getText(), row, 2);
+    model.setValueAt(positionInput.getText(), row, 3);
+    clearFields();
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void exportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportButtonActionPerformed
@@ -371,6 +401,13 @@ public class TableFrame extends javax.swing.JFrame {
             System.getLogger(TableFrame.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }//GEN-LAST:event_importButtonActionPerformed
+
+    private void ClearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearButtonActionPerformed
+        // TODO add your handling code here:
+    DefaultTableModel model = (DefaultTableModel) myTable.getModel();
+    model.setRowCount(0);  // Clear all rows in the table
+    clearFields();         // Clear input text fields
+    }//GEN-LAST:event_ClearButtonActionPerformed
 
     /**
      * @param args the command line arguments
