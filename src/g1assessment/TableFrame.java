@@ -408,7 +408,7 @@ public class TableFrame extends javax.swing.JFrame {
     model.setRowCount(0);  // Clear all rows in the table
     clearFields();         // Clear input text fields
     }//GEN-LAST:event_ClearButtonActionPerformed
-
+    
     /**
      * @param args the command line arguments
      */
