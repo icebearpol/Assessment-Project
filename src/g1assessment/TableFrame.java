@@ -30,7 +30,7 @@ public class TableFrame extends javax.swing.JFrame {
      */
     public TableFrame() {
         initComponents();
-        setTitle("Employee Table");
+        setTitle("Employee Table"); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
@@ -43,7 +43,13 @@ public class TableFrame extends javax.swing.JFrame {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowSelectionAllowed(true);
         table.setColumnSelectionAllowed(false);
-
+        
+        javax.swing.table.DefaultTableCellRenderer leftRenderer = new javax.swing.table.DefaultTableCellRenderer();
+        leftRenderer.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        for (int i = 0; i < myTable.getColumnCount(); i++) {
+        myTable.getColumnModel().getColumn(i).setCellRenderer(leftRenderer);
+        
+        }
     }
 
     /**
@@ -183,7 +189,7 @@ public class TableFrame extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(67, Short.MAX_VALUE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -207,7 +213,7 @@ public class TableFrame extends javax.swing.JFrame {
                                     .addComponent(jLabel1)
                                     .addGap(33, 33, 33)
                                     .addComponent(idInput, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 161, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(UpdateButton, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(DeleteButton, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -281,29 +287,49 @@ public class TableFrame extends javax.swing.JFrame {
     }
     private void CreateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CreateButtonActionPerformed
         // TODO add your handling code here:
-        String id = idInput.getText();
-        String name = nameInput.getText();
-        String age = ageInput.getText();
-        String position = positionInput.getText();
-        
-        if (id.isEmpty() || name.isEmpty() || age.isEmpty() || position.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Please fill all fields!");
-        } 
-        int ageInt;
-        try {
-            ageInt = Integer.parseInt(age);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Age must be a number!");
-            return;  // Add return here to stop adding invalid data
+       String id = idInput.getText().trim();
+    String name = nameInput.getText().trim();
+    String age = ageInput.getText().trim();
+    String position = positionInput.getText().trim();
+
+    if (id.isEmpty() || name.isEmpty() || age.isEmpty() || position.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please fill all fields!");
+        return;
+    }
+
+    int idInt, ageInt;
+    try {
+        idInt = Integer.parseInt(id);   // ID must be number
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "ID must be a number!");
+        return;
+    }
+
+    try {
+        ageInt = Integer.parseInt(age); // Age must be number
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Age must be a number!");
+        return;
+    }
+
+    if (!name.matches("[a-zA-Z ]+")) {  // only letters/spaces allowed
+        JOptionPane.showMessageDialog(this, "Name must only contain letters!");
+        return;
+    }
+
+    if (!position.matches("[a-zA-Z ]+")) { // only letters/spaces allowed
+        JOptionPane.showMessageDialog(this, "Position must only contain letters!");
+        return;
+    }
+
+    DefaultTableModel model = (DefaultTableModel) myTable.getModel();
+    model.addRow(new Object[] {idInt, name, ageInt, position});
+    clearFields();
+    JOptionPane.showMessageDialog(this, "Employee added successfully!");
 
     }//GEN-LAST:event_CreateButtonActionPerformed
-        DefaultTableModel model = (DefaultTableModel) myTable.getModel();
-        model.addRow(new Object[] {id, name, age, position});
         
-        clearFields();
-        JOptionPane.showMessageDialog(this, "Employee added successfully!");
         
-}
     private void positionInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_positionInputActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_positionInputActionPerformed
@@ -333,17 +359,55 @@ public class TableFrame extends javax.swing.JFrame {
 
     private void UpdateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UpdateButtonActionPerformed
         // TODO add your handling code here:
-    int row = myTable.getSelectedRow();
+     int row = myTable.getSelectedRow();
     if (row == -1) {
         JOptionPane.showMessageDialog(this, "Select a row to update!");
-        return;  // Stop execution here if no row selected
+        return;
     }
+
+    String id = idInput.getText().trim();
+    String name = nameInput.getText().trim();
+    String age = ageInput.getText().trim();
+    String position = positionInput.getText().trim();
+
+    if (id.isEmpty() || name.isEmpty() || age.isEmpty() || position.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please fill all fields!");
+        return;
+    }
+
+    int idInt, ageInt;
+    try {
+        idInt = Integer.parseInt(id);
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "ID must be a number!");
+        return;
+    }
+
+    try {
+        ageInt = Integer.parseInt(age);
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Age must be a number!");
+        return;
+    }
+
+    if (!name.matches("[a-zA-Z ]+")) {
+        JOptionPane.showMessageDialog(this, "Name must only contain letters!");
+        return;
+    }
+
+    if (!position.matches("[a-zA-Z ]+")) {
+        JOptionPane.showMessageDialog(this, "Position must only contain letters!");
+        return;
+    }
+
     DefaultTableModel model = (DefaultTableModel) myTable.getModel();
-    model.setValueAt(idInput.getText(), row, 0);
-    model.setValueAt(nameInput.getText(), row, 1);
-    model.setValueAt(ageInput.getText(), row, 2);
-    model.setValueAt(positionInput.getText(), row, 3);
+    model.setValueAt(idInt, row, 0);
+    model.setValueAt(name, row, 1);
+    model.setValueAt(ageInt, row, 2);
+    model.setValueAt(position, row, 3);
+
     clearFields();
+    JOptionPane.showMessageDialog(this, "Employee updated successfully!");
     }//GEN-LAST:event_UpdateButtonActionPerformed
 
     private void exportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportButtonActionPerformed
